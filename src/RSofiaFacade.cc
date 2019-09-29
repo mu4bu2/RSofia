@@ -149,6 +149,7 @@ std::map<std::string, SEXP> RSofiaFacade::train_filename (
 std::map<std::string, SEXP> RSofiaFacade::train_fit (
       const Rcpp::NumericMatrix& x
     , const Rcpp::NumericVector& y
+    , const Rcpp::NumericVector& z
     , const long int random_seed
     , const float lambda
     , const long int iterations
@@ -183,6 +184,7 @@ std::map<std::string, SEXP> RSofiaFacade::train_fit (
  
   clock_t t1 = std::clock();
  
+  /***
   for(int i = 0; i < x.nrow(); ++i) {
     out_stream << y[i];
     for(int j = 0; j < x.ncol(); ++j) { 
@@ -193,7 +195,52 @@ std::map<std::string, SEXP> RSofiaFacade::train_fit (
     training_data.AddVector(out_stream.str().c_str());
     out_stream.str("");        
   }
-
+  ***/
+  
+  int qid = 2;
+  int ih;
+  
+  for(int i = 0; i < x.nrow(); ++i) {    
+    if(z(i) > 0){
+		  out_stream << y[i];
+		  out_stream << " " << "qid:" << 1;
+		  for(int j = 0; j < x.ncol(); ++j) { 
+		    if(x(i,j) != 0) {
+				  out_stream << " " << (j + 1) << ":" << x(i,j);
+			  }
+		  }
+		  training_data.AddVector(out_stream.str().c_str());
+      out_stream.str("");
+		
+		  ih = i+1;
+		  while( ih < x.nrow && z(ih) < 1){
+			  out_stream << y[i];
+			  out_stream << " " << "qid:" << qid;
+			  for(int j = 0; j < x.ncol(); ++j) { 
+				  if(x(i,j) != 0) {
+					  out_stream << " " << (j + 1) << ":" << x(i,j);
+				  }
+			  }
+			  training_data.AddVector(out_stream.str().c_str());
+        out_stream.str("");
+			
+			  out_stream << y[ih];
+		    out_stream << " " << "qid:" << qid;
+			  qid = qid+1;
+        for(int j = 0; j < x.ncol(); ++j) { 
+          if(x(ih,j) != 0) {
+            out_stream << " " << (j + 1) << ":" << x(ih,j);
+          }
+        }
+			  training_data.AddVector(out_stream.str().c_str());
+        out_stream.str("");
+			
+			  ih = ih+1;
+		  }
+		  i = ih;
+	  }       
+  }
+  
   clock_t t2 = std::clock();
 
   float io_time = (t2 - t1)/(float)CLOCKS_PER_SEC;
