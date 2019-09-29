@@ -56,6 +56,7 @@ class RSofiaFacade {
     std::map<std::string, SEXP> train_fit(
         const Rcpp::NumericMatrix& x
       , const Rcpp::NumericVector& y
+      , const Rcpp::NumericVector& z
       , const long int random_seed
       , const float lambda
       , const long int iterations
