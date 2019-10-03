@@ -199,48 +199,48 @@ std::map<std::string, SEXP> RSofiaFacade::train_fit (
   
   int qid = 2;
   int ih;
-  
+ 
   for(int i = 0; i < x.nrow(); ++i) {    
-    if(z(i) > 0){
-		  out_stream << y[i];
-		  out_stream << " " << "qid:" << 1;
-		  for(int j = 0; j < x.ncol(); ++j) { 
-		    if(x(i,j) != 0) {
-				  out_stream << " " << (j + 1) << ":" << x(i,j);
-			  }
-		  }
-		  training_data.AddVector(out_stream.str().c_str());
-      out_stream.str("");
+	if(z(i) > 0){
+		out_stream << y[i];
+		out_stream << " " << "qid:" << 1;
+		for(int j = 0; j < x.ncol(); ++j) { 
+			if(x(i,j) != 0) {
+				out_stream << " " << (j + 1) << ":" << x(i,j);
+			}
+		}
+		training_data.AddVector(out_stream.str().c_str());
+        	out_stream.str("");
 		
-		  ih = i+1;
-		  while( ih < x.nrow && z(ih) < 1){
-			  out_stream << y[i];
-			  out_stream << " " << "qid:" << qid;
-			  for(int j = 0; j < x.ncol(); ++j) { 
-				  if(x(i,j) != 0) {
-					  out_stream << " " << (j + 1) << ":" << x(i,j);
-				  }
-			  }
-			  training_data.AddVector(out_stream.str().c_str());
-        out_stream.str("");
-			
-			  out_stream << y[ih];
-		    out_stream << " " << "qid:" << qid;
-			  qid = qid+1;
-        for(int j = 0; j < x.ncol(); ++j) { 
-          if(x(ih,j) != 0) {
-            out_stream << " " << (j + 1) << ":" << x(ih,j);
-          }
-        }
-			  training_data.AddVector(out_stream.str().c_str());
-        out_stream.str("");
-			
-			  ih = ih+1;
-		  }
-		  i = ih;
-	  }       
-  }
-  
+		ih = i+1;
+		while( ih < x.nrow ){
+			if(z(ih) < 1){
+				out_stream << y[i];
+				out_stream << " " << "qid:" << qid;
+				for(int j = 0; j < x.ncol(); ++j) { 
+					if(x(i,j) != 0) {
+						out_stream << " " << (j + 1) << ":" << x(i,j);
+					}
+				}
+				training_data.AddVector(out_stream.str().c_str());
+				out_stream.str("");
+				
+				out_stream << y[ih];
+				out_stream << " " << "qid:" << qid;
+				qid = qid+1;
+				for(int j = 0; j < x.ncol(); ++j) { 
+					if(x(ih,j) != 0) {
+						out_stream << " " << (j + 1) << ":" << x(ih,j);
+					}
+				}
+				training_data.AddVector(out_stream.str().c_str());
+				out_stream.str("");			
+			}			
+			ih = ih+1;
+		}
+		i = ih;
+	}       
+ } 	
   clock_t t2 = std::clock();
 
   float io_time = (t2 - t1)/(float)CLOCKS_PER_SEC;
